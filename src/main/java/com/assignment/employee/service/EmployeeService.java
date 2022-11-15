@@ -24,7 +24,7 @@ public class EmployeeService {
 		return empRepo.save(employee); 
 	}
 
-	public Optional<Employee> getUserById(Integer id) {
+	public Optional<Employee> getEmployeeById(Integer id) {
 		return empRepo.findById(id); 
 	}
 
@@ -37,5 +37,9 @@ public class EmployeeService {
 	
 	public void deleteEmployee(Integer Id) {
 		empRepo.deleteById(Id);
+	}
+	public Employee getEmployeeByIdAsObject(Integer id) {
+		Optional<Employee> byId = empRepo.findById(id);
+		return byId.isPresent() ? byId.get() : null;
 	}
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.assignment.employee.bean.Employee;
+import com.assignment.employee.exception.EmployeeNotFoundException;
 import com.assignment.employee.service.EmployeeService;
 
 @RestController
@@ -37,20 +38,32 @@ public class Contoller {
 	}
 
 	@GetMapping("{id}")
-	public Optional<Employee> getEmployee(@PathVariable int id) {
-		return service.getUserById(id);
+	public Employee getEmployee(@PathVariable int id) throws EmployeeNotFoundException {
+		Employee getemp = service.getEmployeeByIdAsObject(id);
+		if (getemp == null) {
+			throw new EmployeeNotFoundException("Employee not found");
+		}
+		return getemp;
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<Employee> updateEmployee(@RequestBody Employee emp) {
+	public ResponseEntity<Employee> updateEmployee(@RequestBody Employee emp) throws EmployeeNotFoundException {
 		Employee updateemp = service.updateEmployee(emp);
-		return ResponseEntity.status(HttpStatus.CREATED).body(updateemp);
+		if (service.getEmployeeByIdAsObject(emp.getEmpId()) != null) {
+			Employee updateEmployee = service.updateEmployee(updateemp);
+			return ResponseEntity.status(HttpStatus.OK).body(updateEmployee);
+		} else {
+			throw new EmployeeNotFoundException("Employee Not Found to Update" + emp.toString());
+		}
 	}
 
 	@DeleteMapping("{id}")
-	public String deleteEmployee(@PathVariable int id) {
+	public String deleteEmployee(@PathVariable int id) throws EmployeeNotFoundException {
+		Employee delEmp = service.getEmployeeByIdAsObject(id);
+		if (delEmp == null) {
+			throw new EmployeeNotFoundException("Employee not found");
+		}
 		service.deleteEmployee(id);
-		return "Employee with id " + id + " deleted";
+		return "Employee Deleted Successfully";
 	}
-
 }
